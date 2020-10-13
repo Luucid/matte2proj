@@ -19,8 +19,6 @@ class MatrixCalcs():
         self.det = 0
         
         
-        
-     
     def __setMats(self, a, b = [0,0]):
         self.mat1 = a
         self.mat2 = b
@@ -147,45 +145,92 @@ class MatrixCalcs():
         return self.__returnMatrix(matSum)
         
         
-  
-            
-     
+
         
-    def __det3x(self, m):
-        a = (m[0][0]) * ((m[1][1]*m[2][2]) - (m[1][2]*m[2][1]))
-        b = (m[0][1]) * ((m[1][0]*m[2][2]) - (m[1][2]*m[2][0]))
-        c = (m[0][2]) * ((m[1][0]*m[2][1]) - (m[1][1]*m[2][0])) 
-        return (a - b + c)
-        
-    
-    def __shrinkDet(self, m):
-        d = self.__getShape(m)  
-        
-                
-            
+    def __detCalc(self, m): 
+        a = (m[0][0]*m[1][1]) - (m[0][1]*m[1][0])
+        # print("        (%d * %d) - (%d * %d) = %d |  \n\n" % (m[0][0],m[1][1], m[0][1],m[1][0], a))
+        return a
         
         
         
     
-    def __detRek(self, m):
-        if(self.__getShape(m)[0] > 3):
-            self.__shrinkDet(m)
+    def __fetchNextMat(self, mx, n, shape):
+        shrkMx = np.zeros((shape, shape))
+        for j in range(shape):
+            for k in range(shape):
+                if(k < n):
+                    shrkMx[j][k] = mx[j+1][k]
+                else:
+                    shrkMx[j][k] = mx[j+1][k+1]
+                    
+        return shrkMx
+        
+        
+    def __shrinkDet(self, mx, n, shape):
+
+        shrkMx = self.__fetchNextMat(mx, n, shape)
+        det = 0
+        if(shape > 2):
+            for i in range(shape):
+                if(mx == self.mat1):
+                    x = shrkMx[0][i] * ((-1) ** i)
+                else:
+                    x = mx[0][i] * ((-1) ** i)
+           
+                det += x * (self.__shrinkDet(shrkMx, i, shape-1))
             
+            return det        
+        return self.__detCalc(shrkMx)
         
-      
-       
-        
+               
     def matDet(self, a):
         self.__setMats(a)
         if(self.__errorCheck("det")): 
             return 0
+        shape = self.__getShape(self.mat1)[0]
+        det = 0
+        if(shape > 2):
+            for i in range(shape):
+                x = self.mat1[0][i] * ((-1) ** i)
+                det += x * (self.__shrinkDet(self.mat1, i, shape-1))
+            return det
+        return self.__detCalc(self.mat1)
+            
         
-        self.__detRek(self.mat1)
+    
+    
+    def redAlg(self, r, c):
+        reduced = False
+        tMat1 = np.transpose(self.mat1)
         
-        # self.__det3x(self.mat1)
+     
+                    
+    
+        
+    
+    def gausJordan(self, a):
+        # stage 1: find trappeform
+        # stage 2: reduser
+        self.__setMats(a)
+        s = self.__getShape(self.mat1)
+        # error check here.
+        self.redAlg(s[0], s[1])
         
         
         
+    
+
+
+            
+        
+        
+class lucidMath():
+    def __init__(self):
+        self.obj = MatrixCalcs()
+        
+    def product(self, a, b):
+        return self.obj.matMult(a, b)
         
    
         
@@ -203,7 +248,14 @@ class MatrixCalcs():
         
         
         
-        
+         # if(i%2 == 0):
+         #            x = self.mat1[0][i] 
+         #            print("x =", x)
+         #            self.det += x * (self.__shrinkDet(self.mat1, i, shape-1))
+         #        else:
+         #            y = self.mat1[0][i] 
+         #            print("y =", y)
+         #            self.det -= y * (self.__shrinkDet(self.mat1, i, shape-1))
         
         
         
