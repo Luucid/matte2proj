@@ -2,7 +2,7 @@ import numpy as np
 import sympy as sy
 
 λ = sy.symbols('λ')
-
+x, y, z = sy.symbols("x, y, z")
 
 class MatrixCalcs():
     def __init__(self, m1, md = "nan"):
@@ -206,7 +206,7 @@ class MatrixCalcs():
         self.__gausAlg(rSize, cSize)
         self.__redAlg(rSize, cSize)
      
-        return MatrixCalcs(self.gaus, "Gaus-Jordan")
+        return MatrixCalcs(self.gaus, "Gauss-Jordan")
 
      
 
@@ -220,7 +220,7 @@ class MatrixCalcs():
         
     
     def __fetchNextMat(self, mx, n, shape):
-        shrkMx = np.zeros((shape, shape))
+        shrkMx = np.zeros((shape, shape), dtype=sy.core.add.Add)
         for j in range(shape):
             for k in range(shape):
                 if(k < n):
@@ -237,7 +237,7 @@ class MatrixCalcs():
         det = 0
         if(shape > 2):
             for i in range(shape):
-                if(mx == self.mat1):
+                if(np.shape(mx) == np.shape(self.mat1)):
                     x = shrkMx[0][i] * ((-1) ** i)
                 else:
                     x = mx[0][i] * ((-1) ** i)
@@ -385,28 +385,23 @@ class EgenVe():
         
         self.mat1 = self.a - self.b
         self.eigVects = []
+        self.eigExprs = [""]
         self.__solveDet()
        
         
     
-        
- 
 
-    # def __str__(self):
         
     def __findEigVects(self, x):
         tmp = self.__fillMat(self.lamMat, x)
-        self.c = MatrixCalcs(tmp, "λx*I")       
-        self.mat1 = self.a - self.c
-        vkt = self.mat1.gausJordan()
+        self.c = MatrixCalcs(tmp, "λx*I")      
+        arr = self.a - self.c
+        vkt = arr.gausJordan()
         print(vkt)
         
        
         
-        
-        
-            
-     
+
     
     def __fillMat(self, m1, x):
         mat = np.zeros(np.shape(m1), dtype=sy.core.add.Add)
@@ -419,7 +414,11 @@ class EgenVe():
          expr = sy.expand(expr)
          res = sy.solve(expr)
          self.eigVals = res
+        
+             
+             
          for i in range(len(self.eigVals)):
+             print("for λ =",self.eigVals[i])
              self.__findEigVects(self.eigVals[i])
        
          

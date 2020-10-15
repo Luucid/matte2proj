@@ -10,35 +10,24 @@ import lucidMatrixMain as lm
 # egenverdier CHECK
 # egenvektorer
 
-
-m0 = [[-2,-1,2,1],
-      [5,5,-5,5],
-      [6,8,2,4], 
-      [3,6,9,12]]
-
-# a = [[1,4,7,9],
-#      [4,5,6,7],
-#      [7,8,9,10]]
-
-
-
-
-
-
-
+a = [[1,-2,3],
+      [1,0,1],
+      [1,3,-2]]
 
 
 b = [[3,4],
      [2,1]]
 
 
-mB = lm.MatrixCalcs(b, "2x2 matrix")
-print(mB)
-mBgaus = mB.gausJordan()
-print(mBgaus)
+# mB = lm.MatrixCalcs(m0, "2x2 matrix")
+# print(mB)
+# mBgaus = mB.gausJordan()
+# mBdet = mB.matDet()
+# print(mBdet)
+# print(mBgaus)
 
 
-x = lm.EgenVe(b)
+x = lm.EgenVe(a)
 
 
 
