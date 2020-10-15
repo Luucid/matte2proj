@@ -4,12 +4,8 @@ class MatrixCalcs():
     def __init__(self, m1, md = "nan"):
         
         #main matrixes#
-        self.mat1 = m1
-        self.mat2 = m1
-        self.mat1org = self.mat1.copy()
-       
-
-        
+        self.mat1 = np.array(m1)
+        self.mat2 = np.array(m1)
 
         #dimentions# (n x m1) * (m2 x k) = (n x k)
         self.n = 0
@@ -18,23 +14,39 @@ class MatrixCalcs():
         self.k  = 0
          
         #preps#
-        self.prod = 0
+        self.gaus = np.array(self.mat1.copy(), dtype=np.float64)
+        self.prod = self.mat1.copy()
+        self.det = None
+        
+        
         self.sub = None
         self.row = 0
-        self.det = 0
-        self.gaus = None
+       
         self.mode = md
+        self.__setShape()
         
     
      ############overlasting av operatorer###################   
     
     def __str__(self):   
+       
         s = "mode: %s" % self.mode
         s +="\n--------------------\n"
-        for i in range(len(self.mat1)):
-            s += str(self.mat1[i])
-            s += "\n"
-        s +="--------------------\n"
+        # for i in range(len(self.mat1)):
+        #     s += str(self.mat1[i])
+        #     s += "\n"
+        for i in range(self.n):
+            s += "( "
+            for j in range(self.m1):
+                s+= str(int(self.mat1[i][j])) +" "
+      
+                    
+            s += ") \n"
+        
+        
+        if(self.det != None):
+            s += "Determinant: %d" % self.det
+        s +="\n--------------------\n"
         return s
             
  
@@ -56,10 +68,7 @@ class MatrixCalcs():
    ##############################################################
     
         
-    def __setMats(self):
-        self.mat1 = self.mat1org.copy()
-        self.mat2 = self.mat1.copy()
-        self.__setShape()
+
      
     def __genMat(self, d): 
         return np.array([[0]*d[1]]*d[0]) #return NxM array containing zeros.
@@ -140,7 +149,6 @@ class MatrixCalcs():
                 else:
                     self.prod[i][j] = self.__rowXcol(self.mat1[i], self.__genRow(j))
 
-        self.mat1 = self.mat1org
         return self.prod
    
     
@@ -157,7 +165,7 @@ class MatrixCalcs():
                     matSum[i][j] = (self.mat1[j] + self.mat2[j])
                 else:
                     matSum[i][j] = (self.mat1[i][j] + self.mat2[i][j])
-        self.mat1 = self.mat1org      
+         
         return matSum
     
     
@@ -175,42 +183,35 @@ class MatrixCalcs():
                     matSum[i][j] = (self.mat1[i][j] - self.mat2[i][j])
         
          
-        self.mat1 = self.mat1org
+        # self.mat1 = self.mat1org
         return matSum
         
     
         
-    def matDet(self, a=None):
-        # if(a != None):
-        #     self.__setMats(a)
+    def matDet(self):
         if(self.__errorCheck("det")): 
             return 0
         shape = self.__getShape(self.mat1)[0]
+        
         det = 0
-     
         if(shape > 2):
             for i in range(shape):
                 x = self.mat1[0][i] * ((-1) ** i)
                 det += x * (self.__shrinkDet(self.mat1, i, shape-1))
             return det
-        return self.__detCalc(self.mat1)
+        self.det = self.__detCalc(self.mat1)
+        return self.det
     
     
     
     
     def gausJordan(self):
-        self.__setMats()
-        print(self.mat1org)
-        # error check here.
-        rSize = len(self.mat1)      
-        cSize = len(self.mat1[0])  
         
-        self.__redAlgOne(rSize, cSize)
-        print(self.mat1org)
-        self.__redAlgTwo(rSize, cSize)
-        print(self.mat1org)
-        self.gaus = self.mat1.copy() 
-        self.mat1 = self.mat1org
+        # error check here.
+        rSize = len(self.gaus)      
+        cSize = len(self.gaus[0])      
+        self.__gausAlg(rSize, cSize)
+        self.__redAlg(rSize, cSize)
      
         return MatrixCalcs(self.gaus, "Gaus-Jordan")
 
@@ -260,85 +261,105 @@ class MatrixCalcs():
     
     def __gausLoop(self, cSize, k, mode, r1, r2 = 0):
         
-        if(mode == "mult"):
-            for c in range(cSize):
-                self.mat1[r1][c] *= k
+        if(mode == "mult"):     
+            for c in range(cSize):                
+                self.gaus[r1][c] *= k
             return
         
-        if(mode == "add"):
+        if(mode == "add"):          
             for c in range(cSize):
-                tmp = self.mat1[r1][c] * k
-                self.mat1[r2][c] += tmp
+                tmp = self.gaus[r1][c] * k
+                self.gaus[r2][c] += tmp
             return
  
 
     def __checkIfAllZero(self, rSize, cSize):
         for i in range(1,rSize):
             for j in range(cSize):
-                if(self.mat1[i][j] != 0):
+                if(self.gaus[i][j] != 0):
                     return 0
         return 1
                     
             
+    def __checkIfGaused(self):
+       
+        if (self.n < self.m1):
+            n = self.n
+        else:
+            n = self.m1
+            
+        for i in range(n):
+            if(self.gaus[i][i] != 1):
+                return False
+        return True
+            
+            
         
                 
-    def __redAlgOne(self, rSize, cSize):
-        reduced = False  
+    def __gausAlg(self, rSize, cSize):
+        gaused = False  
         r1 = 0
         r2 = 1
         c = 0
         k = 0
         
-        while(not reduced): 
-            if(self.mat1[r1][c] == 0):
+        while(not gaused): 
+            if(self.gaus[r1][c] == 0):
                 if(self.__checkIfAllZero(rSize, cSize)):
-                    reduced = True
+                    gaused = True
                 
             
-            elif(self.mat1[r1][c] != 1):
-                k = (1/self.mat1[r1][c])
-                self.__gausLoop(rSize, k, "mult", r1)
+            elif(self.gaus[r1][c] != 1):
+                k = (1/self.gaus[r1][c])
+                self.__gausLoop(cSize, k, "mult", r1)
                 
-            elif(self.mat1[r1][c] == 1):    
+            elif(self.gaus[r1][c] == 1):    
                 for n in range(r2, rSize):
-                    k = self.mat1[n][c]*(-1)
+                    k = self.gaus[n][c]*(-1)
                     self.__gausLoop(cSize, k, "add", r1, n)
                 
                 r1 += 1
-                c += 1
+                if(c+1 < cSize):
+                    c += 1
                 r2 += 1
-                if(r2 == rSize):
-                    reduced = True
+                
+                gaused = self.__checkIfGaused()
+                    
         
-        if(self.mat1[rSize-1][cSize-1] != 1):
-            if(self.mat1[rSize-1][cSize-1] != 0):
-                k =  (1/self.mat1[rSize-1][cSize-1])
-                self.__gausLoop(cSize, k, "mult", rSize-1)
                 
             
+     
+    def __redAlg(self, rSize, cSize): #redusert
+        if(self.n < self.m1):
+            cIts = rSize
+        else:
+            cIts = cSize
+    
+        for r in range(1, rSize):
+            r2 = r
+            cs = r
+            for c in range(cs, cIts):
+                if(self.gaus[r-1][c] == 0):
+                    c = cSize
+                    
+                elif(self.gaus[r-1][c] != 0):
+                    k = self.gaus[r-1][c]*(-1)
+                    self.__gausLoop(cSize, k, "add", r2, r-1)
+                if(r2+1 < rSize):
+                    r2 +=1
             
                     
-     
-    def __redAlgTwo(self, rSize, cSize):
-        reduced = False
-        r1 = 0 
-        r2 = 1
-        c = 1 
-   
-        while(not reduced):
-            if(self.mat1[r1][c] != 0):
-                for n in range(r2, rSize):
-                    if(self.mat1[n][c] != 0):
-                        k = self.mat1[r1][c]*(-1)
-                        self.__gausLoop(cSize, k, "add", n, r1)
-                         
-            r1 += 1
-            c += 1
-            r2 += 1
-            if(r1 == rSize-2):
-                reduced = True
-            elif(r2 == rSize):
-                reduced = True
+            
+            
+            
+      
+        
+        
+            
+                
+        
+            
+           
     
           
                     
