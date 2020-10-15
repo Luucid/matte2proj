@@ -7,26 +7,29 @@ import lucidMatrixMain as lm
 # Finne den redusert trappeform til en matrise (Gauss-Jordan eliminasjon) CHECK
 
 
+# egenverdier CHECK
+# egenvektorer
+
+
 m0 = [[-2,-1,2,1],
       [5,5,-5,5],
       [6,8,2,4], 
       [3,6,9,12]]
 
-a = [[1,4],
-     [4,5],
-     [7,8]]
-
-b = [[2,4],
-     [4,5]]
+# a = [[1,4,7,9],
+#      [4,5,6,7],
+#      [7,8,9,10]]
 
 
 
 
 
-mA = lm.MatrixCalcs(a, "3x2 matrix")
-print(mA)
-mAgaus = mA.gausJordan()
-print(mAgaus)
+
+
+
+
+b = [[3,4],
+     [2,1]]
 
 
 mB = lm.MatrixCalcs(b, "2x2 matrix")
@@ -35,10 +38,7 @@ mBgaus = mB.gausJordan()
 print(mBgaus)
 
 
-# k = lm.MatrixCalcs(m0, "4x4 matrix")
-# print(k)
-# kGaus = k.gausJordan()
-# print(kGaus)
+x = lm.EgenVe(b)
 
 
 

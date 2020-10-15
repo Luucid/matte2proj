@@ -1,11 +1,15 @@
 import numpy as np
+import sympy as sy
+
+λ = sy.symbols('λ')
+
 
 class MatrixCalcs():
     def __init__(self, m1, md = "nan"):
         
         #main matrixes#
-        self.mat1 = np.array(m1)
-        self.mat2 = np.array(m1)
+        self.mat1 = np.array(m1, dtype=sy.core.add.Add)
+        self.mat2 = np.array(m1, dtype=sy.core.add.Add)
 
         #dimentions# (n x m1) * (m2 x k) = (n x k)
         self.n = 0
@@ -14,7 +18,8 @@ class MatrixCalcs():
         self.k  = 0
          
         #preps#
-        self.gaus = np.array(self.mat1.copy(), dtype=np.float64)
+        self.gaus = np.array(self.mat1.copy(), dtype=sy.core.add.Add)
+        
         self.prod = self.mat1.copy()
         self.det = None
         
@@ -28,25 +33,15 @@ class MatrixCalcs():
     
      ############overlasting av operatorer###################   
     
-    def __str__(self):   
-       
-        s = "mode: %s" % self.mode
+    def __str__(self):    
+        s = "%s" % self.mode
         s +="\n--------------------\n"
-        # for i in range(len(self.mat1)):
-        #     s += str(self.mat1[i])
-        #     s += "\n"
         for i in range(self.n):
             s += "( "
-            for j in range(self.m1):
-                s+= str(int(self.mat1[i][j])) +" "
-      
-                    
-            s += ") \n"
-        
-        
-        if(self.det != None):
-            s += "Determinant: %d" % self.det
-        s +="\n--------------------\n"
+            for j in range(self.m1):     
+                s+= "["+str(self.mat1[i][j]) +"] "               
+            s += ") \n"   
+        s +="--------------------\n"
         return s
             
  
@@ -71,7 +66,7 @@ class MatrixCalcs():
 
      
     def __genMat(self, d): 
-        return np.array([[0]*d[1]]*d[0]) #return NxM array containing zeros.
+        return np.array([[0]*d[1]]*d[0], dtype=sy.core.add.Add) #return NxM array containing zeros.
     
     
     def __setShape(self):
@@ -182,8 +177,6 @@ class MatrixCalcs():
                 else:
                     matSum[i][j] = (self.mat1[i][j] - self.mat2[i][j])
         
-         
-        # self.mat1 = self.mat1org
         return matSum
         
     
@@ -262,14 +255,18 @@ class MatrixCalcs():
     def __gausLoop(self, cSize, k, mode, r1, r2 = 0):
         
         if(mode == "mult"):     
+           # print(self.gaus, "r%d * %d" %(r1,k))
             for c in range(cSize):                
                 self.gaus[r1][c] *= k
+           # print(self.gaus, "\n")
             return
         
-        if(mode == "add"):          
+        if(mode == "add"):    
+           # print(self.gaus, "r%d  + r%d" % (r2, r1))
             for c in range(cSize):
                 tmp = self.gaus[r1][c] * k
                 self.gaus[r2][c] += tmp
+           # print(self.gaus, "\n")
             return
  
 
@@ -289,9 +286,11 @@ class MatrixCalcs():
             n = self.m1
             
         for i in range(n):
-            if(self.gaus[i][i] != 1):
-                return False
-        return True
+            if(self.gaus[i][i] != 1 and self.gaus[i][i] != 0):
+                return 0
+        if(self.gaus[i][i] == abs(0)):
+            return 2
+        return 1
             
             
         
@@ -305,6 +304,7 @@ class MatrixCalcs():
         
         while(not gaused): 
             if(self.gaus[r1][c] == 0):
+                # gaused = self.__checkIfGaused()
                 if(self.__checkIfAllZero(rSize, cSize)):
                     gaused = True
                 
@@ -312,6 +312,7 @@ class MatrixCalcs():
             elif(self.gaus[r1][c] != 1):
                 k = (1/self.gaus[r1][c])
                 self.__gausLoop(cSize, k, "mult", r1)
+                
                 
             elif(self.gaus[r1][c] == 1):    
                 for n in range(r2, rSize):
@@ -323,11 +324,19 @@ class MatrixCalcs():
                     c += 1
                 r2 += 1
                 
-                gaused = self.__checkIfGaused()
+                if(self.__checkIfGaused() == 1):
+                    gaused = True
+                elif(self.__checkIfGaused() == 2):
+                    if(c+1 < cSize):
+                        c += 1
+                    else:
+                        gaused = True
                     
+                    
+                
         
                 
-            
+        
      
     def __redAlg(self, rSize, cSize): #redusert
         if(self.n < self.m1):
@@ -351,7 +360,79 @@ class MatrixCalcs():
                     
             
             
+      
             
+      
+        
+      
+        
+      
+        
+      
+        
+class EgenVe():
+    def __init__(self, m1):
+        r, c = np.shape(m1)
+        self.eigVals = None
+          
+        self.lamMat = self.__fillMat(m1, λ)  
+        
+          
+        
+        self.a = MatrixCalcs(m1, "%dx%d matrix" %(r,c))
+        self.b = MatrixCalcs(self.lamMat, "λ*I")
+        self.c = None
+        
+        self.mat1 = self.a - self.b
+        self.eigVects = []
+        self.__solveDet()
+       
+        
+    
+        
+ 
+
+    # def __str__(self):
+        
+    def __findEigVects(self, x):
+        tmp = self.__fillMat(self.lamMat, x)
+        self.c = MatrixCalcs(tmp, "λx*I")       
+        self.mat1 = self.a - self.c
+        vkt = self.mat1.gausJordan()
+        print(vkt)
+        
+       
+        
+        
+        
+            
+     
+    
+    def __fillMat(self, m1, x):
+        mat = np.zeros(np.shape(m1), dtype=sy.core.add.Add)
+        for i in range(len(m1)):
+            mat[i][i] = x
+        return mat
+       
+    def __solveDet(self):
+         expr = sy.sympify(str(self.mat1.matDet()))
+         expr = sy.expand(expr)
+         res = sy.solve(expr)
+         self.eigVals = res
+         for i in range(len(self.eigVals)):
+             self.__findEigVects(self.eigVals[i])
+       
+         
+        
+        
+                
+                
+        
+        
+        
+        
+        
+        
       
         
         
