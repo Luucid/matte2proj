@@ -2,7 +2,7 @@ import numpy as np
 import sympy as sy
 
 λ = sy.symbols('λ')
-x, y, z = sy.symbols("x, y, z")
+sambs = sy.symbols(['x', 'y', 'z'])
 
 class MatrixCalcs():
     def __init__(self, m1, md = "nan"):
@@ -210,8 +210,6 @@ class MatrixCalcs():
 
      
 
-    
-
 
 
     def __detCalc(self, m): 
@@ -270,9 +268,16 @@ class MatrixCalcs():
             return
  
 
-    def __checkIfAllZero(self, rSize, cSize):
-        for i in range(1,rSize):
-            for j in range(cSize):
+
+    def __checkIfOne(self, r, c):
+        for i in range(c):
+            if(self.gaus[r][i] == abs(1)):
+                return i
+        return 0
+    
+    def __checkIfAllZero(self, r, c):
+        for i in range(1,r):
+            for j in range(c):
                 if(self.gaus[i][j] != 0):
                     return 0
         return 1
@@ -292,8 +297,14 @@ class MatrixCalcs():
             return 2
         return 1
             
+      
             
-        
+      
+    def __swapRows(self, a, b):
+        c = self.gaus[a].copy()
+        self.gaus[a] = self.gaus[b]
+        self.gaus[b] = c
+      
                 
     def __gausAlg(self, rSize, cSize):
         gaused = False  
@@ -302,17 +313,22 @@ class MatrixCalcs():
         c = 0
         k = 0
         
+
+
+        for i in range(cSize): 
+            for j in range(i, rSize):
+                if(abs(self.gaus[i][j]) == 1):
+                    self.__swapRows(j, i)
+                    
+
+    
         while(not gaused): 
-            if(self.gaus[r1][c] == 0):
-                # gaused = self.__checkIfGaused()
-                if(self.__checkIfAllZero(rSize, cSize)):
-                    gaused = True
-                
             
-            elif(self.gaus[r1][c] != 1):
+            if(self.gaus[r1][c] != 1 and self.gaus[r1][c] != 0):
                 k = (1/self.gaus[r1][c])
                 self.__gausLoop(cSize, k, "mult", r1)
                 
+         
                 
             elif(self.gaus[r1][c] == 1):    
                 for n in range(r2, rSize):
@@ -324,12 +340,23 @@ class MatrixCalcs():
                     c += 1
                 r2 += 1
                 
+                
                 if(self.__checkIfGaused() == 1):
                     gaused = True
                 elif(self.__checkIfGaused() == 2):
                     if(c+1 < cSize):
                         c += 1
                     else:
+                        gaused = True
+                        
+            elif(self.gaus[0][0] == 0):
+                for i in range(1, rSize):
+                    test = self.__checkIfAllZero(i, 0)
+                    if(test != 0):
+                        self.__swapRows(r1, i)
+                
+                   
+                    if(self.__checkIfAllZero(rSize, cSize)): 
                         gaused = True
                     
                     
@@ -360,32 +387,24 @@ class MatrixCalcs():
                     
             
             
-      
-            
-      
-        
-      
-        
-      
-        
+    
       
         
 class EgenVe():
     def __init__(self, m1):
+        
         r, c = np.shape(m1)
         self.eigVals = None
           
         self.lamMat = self.__fillMat(m1, λ)  
-        
-          
-        
+
         self.a = MatrixCalcs(m1, "%dx%d matrix" %(r,c))
         self.b = MatrixCalcs(self.lamMat, "λ*I")
         self.c = None
         
         self.mat1 = self.a - self.b
-        self.eigVects = []
-        self.eigExprs = [""]
+        print(self.a)
+        print(self.mat1)
         self.__solveDet()
        
         
@@ -394,10 +413,42 @@ class EgenVe():
         
     def __findEigVects(self, x):
         tmp = self.__fillMat(self.lamMat, x)
-        self.c = MatrixCalcs(tmp, "λx*I")      
+        self.c = MatrixCalcs(tmp, "λx*I")     
+     
         arr = self.a - self.c
+       
         vkt = arr.gausJordan()
-        print(vkt)
+        expr = ""
+        res = np.zeros((len(arr.mat1),1), dtype=sy.core.add.Add)
+      
+       
+        for i in range(len(arr.mat1)):
+            for j in range(len(arr.mat1)):
+                expr += str(vkt.mat1[i][j]*sambs[j])
+                if(j + 1 != len(arr.mat1)):
+                    expr += " + "
+                
+            
+            expr = sy.sympify(expr)  
+     
+            res[i] = str(expr)
+            if(res[i] == '0'):
+                res[i] = str(sambs[i])
+            
+            expr = ""
+
+            res[i] = sy.sympify(res[i])
+            res[i] = sy.solve(res[i], sambs[i]) 
+            res[i] = res[i][0][sambs[i]]
+            if(res[i][0] == 0):
+                if(vkt.mat1[i][i] == 0):
+                    res[i][0] = sambs[i]
+            
+            
+        eigVects = MatrixCalcs(res, "eigenVectors")
+        print(eigVects)
+      
+        
         
        
         
@@ -419,6 +470,7 @@ class EgenVe():
              
          for i in range(len(self.eigVals)):
              print("for λ =",self.eigVals[i])
+             print("--------------------")
              self.__findEigVects(self.eigVals[i])
        
          

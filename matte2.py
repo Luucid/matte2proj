@@ -1,33 +1,39 @@
 import lucidMatrixMain as lm
 
-# Ta imot to matriser og gi produktet av dem som output. CHECK
-# Ta imot to matriser og gi summen av dem. CHECK
-# Ta imot to matriser og finne differansen mellom dem CHECK
-# Finne determinanten til en matrise CHECK
-# Finne den redusert trappeform til en matrise (Gauss-Jordan eliminasjon) CHECK
 
 
-# egenverdier CHECK
-# egenvektorer
-
-a = [[1,-2,3],
-      [1,0,1],
-      [1,3,-2]]
+a = [[0,2,2],
+     [0,1,1],
+     [-1,2,1]]
 
 
-b = [[3,4],
-     [2,1]]
+b = [[1,2],
+     [-1,3]]
+
+c = [[1,-2,3],
+     [1,0,1],
+     [1,3,-2]]
 
 
-# mB = lm.MatrixCalcs(m0, "2x2 matrix")
-# print(mB)
-# mBgaus = mB.gausJordan()
-# mBdet = mB.matDet()
-# print(mBdet)
-# print(mBgaus)
+mB = lm.MatrixCalcs(a, "3x3 matrix")
+print(mB)
+
+mBgaus = mB.gausJordan()
+print(mBgaus)
+
+mBdet = mB.matDet()
+print("determinant: ", mBdet)
+
+print(mB * mB)
+print(mB + mB)
+print(mB - mB)
+
+print("EIGEN VECTOR \n\n\n")
+lm.EgenVe(c)
 
 
-x = lm.EgenVe(a)
+
+
 
 
 
