@@ -403,6 +403,7 @@ class EgenVe():
         self.c = None
         
         self.mat1 = self.a - self.b
+   
         print(self.a)
         print(self.mat1)
         self.__solveDet()
@@ -449,10 +450,7 @@ class EgenVe():
         print(eigVects)
       
         
-        
-       
-        
-
+ 
     
     def __fillMat(self, m1, x):
         mat = np.zeros(np.shape(m1), dtype=sy.core.add.Add)
@@ -461,6 +459,7 @@ class EgenVe():
         return mat
        
     def __solveDet(self):
+        
          expr = sy.sympify(str(self.mat1.matDet()))
          expr = sy.expand(expr)
          res = sy.solve(expr)
