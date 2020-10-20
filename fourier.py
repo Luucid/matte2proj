@@ -8,14 +8,15 @@ pi = np.pi
 
 
 
-def prnt():
-    
+def prnt(lbl):
+    lbl = sy.trigsimp(lbl)
 
     plt.close()
     plt.pause(3)
+    plt.xlabel("Fourier-rekke for f(x) = " + str(lbl))
     mng = plt.get_current_fig_manager()
     mng.window.showMaximized()
-    plt.axis([-8, 8, -3, 3])
+    # plt.axis([-8, 8, -3, 3])
     plt.subplot().spines["left"].set_visible(0)
     plt.subplot().spines["right"].set_visible(0)
     plt.subplot().spines["top"].set_visible(0)
@@ -82,11 +83,8 @@ def four(fx, pStart, pEnd, n):
         
     
 
-
-def f(x):
-    return x
-
-fr = four(f(x), -1*(pi/2), pi/2, 4)
+    
+fr = four(sy.atan(sy.tan(x)), -1*(pi/2), pi/2, 4)
 
 
 fr  = sy.sympify(fr)
@@ -104,7 +102,8 @@ for i in range(n):
     yv[i] = fr.subs(x, xv[i])
 
 
-prnt()        
+
+prnt(sy.atan(sy.tan(x)))        
 
 
 
