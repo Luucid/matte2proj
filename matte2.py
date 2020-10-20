@@ -1,4 +1,5 @@
 import lucidMatrixMain as lm
+import taylor
 
 
 
@@ -31,7 +32,7 @@ print(mB - mB)
 print("EIGEN VECTOR \n\n\n")
 lm.EgenVe(c)
 
-
+taylor.TaylorRekke("sin(x)", 9)
 
 
 
