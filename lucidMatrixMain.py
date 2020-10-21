@@ -2,6 +2,7 @@ import numpy as np
 import sympy as sy
 
 λ = sy.symbols('λ')
+
 sambs = sy.symbols(['x', 'y', 'z'])
 
 class MatrixCalcs():

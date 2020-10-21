@@ -25,6 +25,8 @@ class TaylorRekke():
         plt.grid(True)
         plt.plot(xVals, yVals, "r-")
         plt.show()
+        plt.pause(10)
+        plt.close()
        
     def __funk(self, v):
         return self.f.subs(x, v)     
@@ -68,8 +70,6 @@ class TaylorRekke():
 
         
 
-# f = input("skriv inn utrykk: ")
-# tlr = TaylorRekke(f, 9)
 
 
 
